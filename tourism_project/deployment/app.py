@@ -94,8 +94,12 @@ input_data = pd.DataFrame([{
     'MonthlyIncome': MonthlyIncome
 }])
 
-# Explicitly align columns and order with what the trained model expects
+# Safely align columns if feature_names_in_ exists
 if hasattr(model, "feature_names_in_"):
+    # Ensure missing columns in input are filled or mismatched ones don't crash
+    missing_cols = [col for col in model.feature_names_in_ if col not in input_data.columns]
+    for col in missing_cols:
+        input_data[col] = 0  # Default missing features to 0 or appropriate fallback
     input_data = input_data[model.feature_names_in_]
 
 # Explicitly cast string/object columns to category dtype to satisfy XGBoost's enable_categorical=True
