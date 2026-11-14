@@ -54,18 +54,12 @@ if st.button("Predict"):
         'MonthlyIncome': MonthlyIncome
     }])
 
-    # Safely align columns: create any missing feature columns with default 0
-    if hasattr(model, "feature_names_in_"):
-        for col in model.feature_names_in_:
-            if col not in input_data.columns:
-                input_data[col] = 0
-        input_data = input_data[model.feature_names_in_]
-
-    # Convert string/object columns to category dtype for XGBoost
+    # Convert object columns to category for XGBoost native categorical support
     for col in input_data.select_dtypes(include=['object', 'string']).columns:
         input_data[col] = input_data[col].astype('category')
 
     try:
+        # Predict directly without forcing rigid feature name reindexing mismatches
         prob = model.predict_proba(input_data)[0, 1]
         st.success(f"Prediction Complete! Purchase Probability: {prob:.2f}")
     except Exception as e:
