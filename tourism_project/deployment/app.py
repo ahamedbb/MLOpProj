@@ -5,17 +5,14 @@ import os
 
 st.title("Tourism Package Purchase Prediction")
 
-# Load model safely
 @st.cache_resource
 def load_model():
-    model_path = "tourism_project/deployment/best_tourism_model_v1.joblib"
-    return joblib.load(model_path)
+    return joblib.load("tourism_project/deployment/best_tourism_model_v1.joblib")
 
 model = load_model()
 
 st.write("Please enter customer details below:")
 
-# Input fields
 Age = st.number_input("Age", min_value=18, max_value=100, value=35)
 TypeofContact = st.selectbox("Type of Contact", ["Self Enquiry", "Company Invited"])
 CityTier = st.selectbox("City Tier", [1, 2, 3])
@@ -57,16 +54,15 @@ if st.button("Predict"):
         'MonthlyIncome': MonthlyIncome
     }])
 
-    # Safely align columns with model expectation without raising KeyError
+    # Safely align columns: create any missing feature columns with default 0
     if hasattr(model, "feature_names_in_"):
         for col in model.feature_names_in_:
             if col not in input_data.columns:
                 input_data[col] = 0
         input_data = input_data[model.feature_names_in_]
 
-    # Cast string/object columns to category for XGBoost
-    categorical_cols = input_data.select_dtypes(include=['object', 'string']).columns
-    for col in categorical_cols:
+    # Convert string/object columns to category dtype for XGBoost
+    for col in input_data.select_dtypes(include=['object', 'string']).columns:
         input_data[col] = input_data[col].astype('category')
 
     try:
