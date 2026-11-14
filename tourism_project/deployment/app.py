@@ -42,6 +42,37 @@ MonthlyIncome = st.number_input("Monthly Income", min_value=1000.0, value=30000.
 # ==========================================
 # Assemble inputs into a single-row DataFrame matching the training schema.
 # Categorical strings are passed raw so the pipeline's OneHotEncoder handles them identically to training.
+#input_data = pd.DataFrame([{
+#    'Age': Age,
+#    'TypeofContact': TypeofContact,
+#    'CityTier': CityTier,
+#    'DurationOfPitch': DurationOfPitch,
+#    'Occupation': Occupation,
+#    'Gender': Gender,
+#    'NumberOfPersonVisiting': NumberOfPersonVisiting,
+#    'NumberOfFollowups': NumberOfFollowups,
+#    'ProductPitched': ProductPitched,
+#    'PreferredPropertyStar': PreferredPropertyStar,
+#    'MaritalStatus': MaritalStatus,
+#    'NumberOfTrips': NumberOfTrips,
+#    'Passport': 1 if Passport == "Yes" else 0,
+#    'PitchSatisfactionScore': PitchSatisfactionScore,
+#    'OwnCar': 1 if OwnCar == "Yes" else 0,
+#    'NumberOfChildrenVisiting': NumberOfChildrenVisiting,
+#    'Designation': Designation,
+#    'MonthlyIncome': MonthlyIncome
+#}])
+
+# Explicitly cast string/object columns to category dtype to satisfy XGBoost's enable_categorical=True
+#categorical_cols = input_data.select_dtypes(include=['object', 'string']).columns
+#for col in categorical_cols:
+#    input_data[col] = input_data[col].astype('category')
+
+
+# ===
+# ==========================================
+# 3. Feature Formatting & Alignment
+# ==========================================
 input_data = pd.DataFrame([{
     'Age': Age,
     'TypeofContact': TypeofContact,
@@ -63,10 +94,15 @@ input_data = pd.DataFrame([{
     'MonthlyIncome': MonthlyIncome
 }])
 
+# Explicitly align columns and order with what the trained model expects
+if hasattr(model, "feature_names_in_"):
+    input_data = input_data[model.feature_names_in_]
+
 # Explicitly cast string/object columns to category dtype to satisfy XGBoost's enable_categorical=True
 categorical_cols = input_data.select_dtypes(include=['object', 'string']).columns
 for col in categorical_cols:
     input_data[col] = input_data[col].astype('category')
+
 
 # ==========================================
 # 4. Inference & Prediction Display
