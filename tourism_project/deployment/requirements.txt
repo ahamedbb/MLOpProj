@@ -1,0 +1,14 @@
+# Core data manipulation and structure library
+pandas==2.2.2
+
+# Machine learning pipeline and preprocessing utilities
+scikit-learn==1.6.0
+
+# Gradient boosting model library matching training environment
+xgboost==2.1.4
+
+# Model serialization and artifact persistence
+joblib==1.5.1
+
+# Interactive web application framework
+streamlit==1.43.2
