@@ -94,19 +94,19 @@ input_data = pd.DataFrame([{
     'MonthlyIncome': MonthlyIncome
 }])
 
-# Safely align columns if feature_names_in_ exists
+# Safely align with model features if present
 if hasattr(model, "feature_names_in_"):
-    # Ensure missing columns in input are filled or mismatched ones don't crash
-    missing_cols = [col for col in model.feature_names_in_ if col not in input_data.columns]
-    for col in missing_cols:
-        input_data[col] = 0  # Default missing features to 0 or appropriate fallback
+    # Add any missing model features as zeros/default
+    for col in model.feature_names_in_:
+        if col not in input_data.columns:
+            input_data[col] = 0
+    # Reindex strictly to model expectation
     input_data = input_data[model.feature_names_in_]
 
-# Explicitly cast string/object columns to category dtype to satisfy XGBoost's enable_categorical=True
+# Explicitly cast string/object columns to category dtype for XGBoost
 categorical_cols = input_data.select_dtypes(include=['object', 'string']).columns
 for col in categorical_cols:
     input_data[col] = input_data[col].astype('category')
-
 
 # ==========================================
 # 4. Inference & Prediction Display
